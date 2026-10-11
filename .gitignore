@@ -1,0 +1,5 @@
+*.o
+xlxd/src/xlxd
+xlxd/ambed/ambed
+XLXEcho/xlxecho
+__pycache__/

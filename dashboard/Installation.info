@@ -1,0 +1,93 @@
+1. Install database dependencies:
+sudo apt install sqlite3 php-sqlite3
+sudo service apache2 restart
+
+2. Move the users_db/ folder to /xlxd/users_db/ and fix the permissions:
+sudo mv XLX_Dark_Dashboard/users_db/ /xlxd/
+sudo chmod -R 755 /xlxd/users_db
+sudo chown -R www-data:www-data /xlxd/users_db
+
+3. Run the file to create the initial user base:
+cd /xlxd/users_db/
+sudo ./update_db.sh 
+
+4. Create the daily update process for the callsign database just move the files update_* from /xlxd/users_db/ folder:
+sudo mv /xlxd/users_db/update_db.sh /usr/local/bin/
+sudo mv /xlxd/users_db/update_XLX_db.* /etc/systemd/system/
+
+6. Run the commands below to reload and activate the process:
+sudo systemctl daemon-reload
+sudo systemctl enable --now update_XLX_db.timer
+
+7. Check if the timer is active and working:
+sudo systemctl list-timers --all | grep update_XLX_db
+
+Manual execution:
+sudo systemctl start update_XLX_db.service
+Log query:
+sudo journalctl -u update_XLX_db.service     (all)
+sudo journalctl -u update_XLX_db.service --since "yesterday"     (from day)
+
+
+
+=======================================================
+
+
+
+Changes necessary to adapt the time zone as well as other customizations related to Apache.
+
+In /etc/php/8.x/apache2/php.ini look for the date.timezone parameter (in the file it is below "Module Settings") and set it to the correct location.
+In the example below it was set as date.timezone = "America/Sao_Paulo", there are other values that can also be changed at will,
+just don't forget to delete the ; in front of the parameter to enable it.
+
+You can check available time zones with:
+timedatectl list-timezones | grep America
+
+And to make the changes:
+sudo sed -i 's/;date.timezone =/date.timezone = "America\/Sao_Paulo"/' /etc/php/8.x/apache2/php.ini
+sudo sed -i 's/;date.default_latitude = 31.7667/date.default_latitude = -26.1493/' /etc/php/8.x/apache2/php.ini
+sudo sed -i 's/;date.default_longitude = 35.2333/date.default_longitude = -49.8123/' /etc/php/8.x/apache2/php.ini
+sudo systemctl reload apache2.service
+
+[Date]
+; Defines the default timezone used by the date functions
+; https://php.net/date.timezone
+date.timezone = "America/Sao_Paulo"
+
+; https://php.net/date.default-latitude
+date.default_latitude = -26.1493
+
+; https://php.net/date.default-longitude
+date.default_longitude = -49.8123
+
+At the end, don't forget to reload the service:
+sudo systemctl reload apache2.service
+
+
+
+=======================================================
+
+
+
+Set Date and Time
+
+Set the local time according to the region, list the region with the command mentioned above (for American cities, for example, timedatectl list-timezones | grep America):
+sudo timedatectl set-timezone America/Sao_Paulo
+
+After that enable ntp:
+sudo timedatectl set-ntp true
+
+In the "Network" tab, for the dates to be displayed in Portuguese, simply add the Portuguese language to those already installed on the machine, to do this,
+simply enter the command below and select the language pt_BR.UTF-8 UTF-8 and add it to the existing ones, it's not necessary to mark it as main,
+it just needs to be present in the list:
+sudo dpkg-reconfigure locales
+
+
+
+=======================================================
+
+
+
+To-dos:
+* Date and country selection;
+* UPnP port forwarding;

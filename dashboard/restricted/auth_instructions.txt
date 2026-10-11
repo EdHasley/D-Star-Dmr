@@ -1,0 +1,39 @@
+To restrict access to the site only to users registered in .htpasswd (inside "restricted" folder), follow the changes below:
+
+1. On terminal, type:
+sudo nano /etc/apache2/apache2.conf
+
+2. Find the corresponding section in the file and add the following:
+
+<Directory /var/www/html/xlxd/>
+    AllowOverride All
+</Directory>
+
+3. At the end, reload the service:
+sudo systemctl reload apache2.service
+
+4. Move the "restricted" directory two levels up, inside "www", next to "http", then add the following text to the beginning of index.php, right after <?php as shown below:
+
+<?php
+session_start();
+$pending_users = "/var/www/restricted/pendentes.txt";
+
+// Checks if the server passed the authentication variable.
+if (!isset($_SERVER['PHP_AUTH_USER'])) {
+    header('WWW-Authenticate: Basic realm="Restricted"');
+    header('HTTP/1.0 401 Unauthorized');
+    echo "Access denied!";
+    exit;
+}
+$cert_user = $_SERVER['PHP_AUTH_USER'];
+
+// Checks if the user is on the password change list.
+$pending_users_list = file($pending_users, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+if (in_array($cert_user, $pending_users_list)) {
+    header("Location: /change_password.php");
+    exit;
+}
+
+5. Using reflector_user_manager.sh inside /xlxd/users_db/, add the users to the whitelist and note the temporary password created.
+Pass the data to the users and inform them that the temporary password provided must be changed upon first access,
+The system detects that the user has not changed their password and is guided to a specific page for that purpose, if they forget the password, you can generate a new one using the same user manager app.

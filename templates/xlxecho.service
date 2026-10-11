@@ -1,0 +1,9 @@
+[Unit]
+Description=XLX Echo Test
+After=network-online.target
+[Service]
+Type=simple
+ExecStart=/xlxd/xlxecho ECHO 127.0.0.1
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
