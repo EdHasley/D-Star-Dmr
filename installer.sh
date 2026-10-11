@@ -1112,7 +1112,6 @@ review_settings() {
     [[ "$ENABLE_YSF_USER" == "Y" ]] && print_wrapped "    YSF Auto-link:       $AUTOLINK_USER"
     [[ "$AUTOLINK" -eq 1 ]] && print_wrapped "    YSF module:          $MODAUTO"
     print_wrapped "15. Transcoder backend:  ${TRANSCODER_BACKEND:-hardware}"
-    [[ "${TRANSCODER_BACKEND:-none}" != none ]] && print_wrapped "    AMBE/transcoder port: $TRANSCODER_PORT_USER"
     print_wrapped "16. Public call-home:    $CALLHOME_USER"
 
     echo ""
